@@ -10,6 +10,7 @@
 %-----------------------------------------------------------%
 
 clear all; close all;
+run("/Users/eshimelis/Documents/MATLAB/adigator/startupadigator.m")
 %% Create Map
 
 % Example Map (square bounds, rectangular prism obstacles)
@@ -32,15 +33,37 @@ clear all; close all;
 map.bounds.x = [0, 100];
 map.bounds.y = [0, 100];
 
-obstacle.pos = [20, 20];
-obstacle.dim = [20, 20]; 
+% rectangles
+% obstacles.pos = [20, 0;
+%                  60, 40;
+%                  %60, 0
+%                  ];
+% 
+% obstacles.dim = [10, 60;
+%                  10, 60;
+%                  %10, 10
+%                  ]; 
+
+% circles
+obstacles.pos = [40, 60;
+                 80, 20;
+                 70, 40;
+                 10, 20;
+                 60, 50];
+
+obstacles.radius = [16;
+                    10;
+                    15;
+                    10;
+                    15];
 
 start.pos = [1, 1];
 start.vel = [0, 0];
 
-goal.pos = [75, 70];
+goal.pos = [90, 60];
 goal.vel = [0, 0];
 
+numAgents = 5;
 
 %% Call GPOPS-II main file
 infoControlGPOPSMain;

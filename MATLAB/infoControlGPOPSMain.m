@@ -11,15 +11,26 @@
 % ------------------------------------------------------------- %
 %               Set up auxiliary data for problem               %
 % ------------------------------------------------------------- %
-auxdata.obstacle = obstacle;
+auxdata.obstacles	= obstacles;
+auxdata.numAgents	= numAgents;
+auxdata.numObstacles = size(obstacles.pos, 1);
+
+% create other agents
+otherAgentStates = [];
+posOffset = [1, 0];
+velOffset = [0, 0];
+for i = 1:numAgents - 1
+    otherAgentStates = [otherAgentStates, posOffset*i, velOffset];
+end
+    
 
 % --------------------------------------------------------------%
 %           Set up bounds on state, control, and time           %
 % --------------------------------------------------------------%
 t0 = 0;
 tfmin = 0; tfmax = 1e4;
-vmin = -20; vmax = 20;
-umin = -1; umax = 1;
+vmin = -100; vmax = 100;
+umin = -0.5; umax = 0.5;
 
 initState = [start.pos, start.vel];
 finalState = [goal.pos, goal.vel];
@@ -44,19 +55,23 @@ bounds.phase.control.upper      = [umax, umax];
 bounds.phase.integral.lower     = 0;
 bounds.phase.integral.upper     = 1e4;
 
-bounds.phase.path.lower         = [-1e4];   % just slightly larger than map
-bounds.phase.path.upper         = [-10];    % min distance to obstacles
+bounds.phase.path.lower         = -1e4 * ones(1, auxdata.numObstacles);   % just slightly larger than map
+bounds.phase.path.upper         = -1 * ones(1, auxdata.numObstacles);    % min distance to obstacles
 
 guess.phase.time = [t0; tfmax];
 guess.phase.state = [initState; finalState];
 guess.phase.control = [0, 0; 0, 0];
 guess.phase.integral = 0;
 
-mesh.method = 'hp-PattersonRao';
+mesh.method = 'hp-LiuRao-Legendre';
+% mesh.method = 'hp-PattersonRao';
+% mesh.tolerance = 1e-6; 
+% mesh.maxiterations = 25;
 mesh.tolerance = 1e-6; 
-mesh.maxiterations = 25;
+mesh.maxiterations = 10;
 mesh.colpointsmin = 4;
-mesh.colpointsmax = 10;
+% mesh.colpointsmax = 10;
+mesh.colpointsmax = 11;
 
 % ----------------------------------------------------------------------- %
 % Set up solver

@@ -5,12 +5,13 @@ state = solution.phase.state;
 control = solution.phase.control;
 
 %%
-figure(1); clf;
+figure(1); clf; set(gcf, 'position', [1925, 1500, 1500, 1000]);
 subplot(2, 2, 1); hold on; set(gca, 'DefaultLineLineWidth', 2);
 
 % add obstacles
-rectangle('Position', [obstacle.pos, obstacle.dim], 'FaceColor', [0 .5 .5], 'EdgeColor', 'k');
-
+% plotRectObstacles(obstacles)
+plotCircObstacles(obstacles)
+% rectangle('Position', [obstacle.pos, obstacle.dim], 'FaceColor', [0 .5 .5], 'EdgeColor', 'k');
 
 plot(state(:, 1), state(:, 2), '-o', 'MarkerSize', 10);
 format_plot(gca); axis equal; pbaspect([1 1 1]);

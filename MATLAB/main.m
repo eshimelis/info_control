@@ -45,28 +45,32 @@ map.bounds.y = [0, 100];
 %                  ]; 
 
 % circles
-obstacles.pos = [40, 60;
-                 80, 20;
-                 70, 40;
-                 10, 20;
-                 60, 50];
+obstacles.pos = [%30, 40;
+                 %20, 40;
+                 50, 40;
+                 50, 20;
+                 %60, 50
+                 ];
 
-obstacles.radius = [16;
-                    10;
+obstacles.radius = [%16;
+                    %15;
                     15;
-                    10;
-                    15];
+                    15;
+                    %15
+                    ];
 
-start.pos = [1, 1];
+start.pos = [5, 5];
 start.vel = [0, 0];
 
-goal.pos = [90, 60];
+goal.pos = [90, 40];
 goal.vel = [0, 0];
 
-numAgents = 5;
+numAgents = 4;
 
 %% Call GPOPS-II main file
 infoControlGPOPSMain;
 
 %% Plot results
 infoControlPlot;
+
+animatedPlot;

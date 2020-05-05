@@ -1,27 +1,26 @@
 function phaseout = infoControlContinuous(input)
 
 auxdata = input.auxdata;
+numAgents = auxdata.numAgents;
+pos_idx = auxdata.pos_idx;
+max_radius = auxdata.max_radius;
 
-t       = input.phase.time(:, 1);
+t = input.phase.time(:, 1);
 
-x       = input.phase.state(:, 1);
-y       = input.phase.state(:, 2);
-xdot    = input.phase.state(:, 3);
-ydot    = input.phase.state(:, 4);
+phaseout.integrand = t;
+phaseout.dynamics = [];
+phaseout.path = [];
 
-ux    = input.phase.control(:,1);
-uy    = input.phase.control(:,2);
+% state dynamics
+phaseout.dynamics = input.phase.state*auxdata.A' + input.phase.control*auxdata.B';
 
-xddot = ux;
-yddot = uy;
+% path constraints
+phaseout.path = [-circCollisions(auxdata.obstacles, input.phase.state), maxSeparation(input.phase.state(:, pos_idx), max_radius)];
 
-% collisions = rectCollisions(auxdata.obstacles, [x, y]);
-collisions = circCollisions(auxdata.obstacles, [x, y]);
+gdop = calcGPOPSGDOP(input.phase.state(:, pos_idx));
+% display(input.phase.state(:, pos_idx));
 
-
-phaseout.dynamics  = [xdot, ydot, xddot, yddot];
-phaseout.path      = [-collisions]; % collision constraints
-% phaseout.integrand = t + ux.^2 + uy.^2;
-phaseout.integrand = t + ux.^2 + uy.^2;
+% integrand
+phaseout.integrand = t + sqrt(sum(input.phase.control(:, 1:2).^2, 2)) + gdop;
 
 end

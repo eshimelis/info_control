@@ -3,11 +3,16 @@ function output = circCollisions(obstacles, pos)
 % obstacles.
 
 N = size(obstacles.pos, 1);
+M = size(pos, 2)/4;
 
-output = zeros(size(pos, 1), N);
+output = zeros(size(pos, 1), N*M);
 
-for i = 1:N
-    output(:, i) = circ_coll([obstacles.pos(i, :), obstacles.radius(i, :)], pos);
+k = 1;
+for i = 1:M
+    for j = 1:N
+        output(:, k) = circ_coll([obstacles.pos(j, :), obstacles.radius(j, :)], pos(:, (4*(i-1))+(1:2)));
+        k = k + 1;
+    end
 end
 
 end

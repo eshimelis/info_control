@@ -46,23 +46,23 @@ map.bounds.y = [0, 100];
 
 % circles
 obstacles.pos = [%30, 40;
-                 %20, 40;
+                 50, 80;
                  50, 40;
                  50, 20;
-                 %60, 50
+                 50, 60
                  ];
 
 obstacles.radius = [%16;
-                    %15;
-                    15;
-                    15;
-                    %15
+                    5;
+                    5;
+                    5;
+                    5
                     ];
 
 start.pos = [5, 5];
 start.vel = [0, 0];
 
-goal.pos = [90, 40];
+goal.pos = [90, 90];
 goal.vel = [0, 0];
 
 numAgents = 4;
@@ -74,3 +74,6 @@ infoControlGPOPSMain;
 infoControlPlot;
 
 animatedPlot;
+
+%% Save Workspace
+save(datestr(now, 'mm-dd-yy-HH-MM-SS'));

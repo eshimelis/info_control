@@ -19,6 +19,12 @@ phaseout.path = [-circCollisions(auxdata.obstacles, input.phase.state), maxSepar
 
 gdop = calcGPOPSGDOP(input.phase.state(:, pos_idx));
 % display(input.phase.state(:, pos_idx));
+% 
+% display(t);
+% display(sqrt(sum(input.phase.control(:, 1:2).^2, 2)));
+% display(gdop);
+% display('asdf');
+% x = input('asdf');
 
 % integrand
 phaseout.integrand = t + sqrt(sum(input.phase.control(:, 1:2).^2, 2)) + gdop;

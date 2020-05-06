@@ -89,7 +89,7 @@ bounds.phase.control.upper      = repmat(umax, 1, numAgents);
 bounds.phase.integral.lower     = 0;
 bounds.phase.integral.upper     = 1e6;
 
-bounds.phase.path.lower         = [-1e3 * ones(1, auxdata.numObstacles*numAgents), -29*ones(1, numAgents-1)];   % just slightly larger than map
+bounds.phase.path.lower         = [-1e3 * ones(1, auxdata.numObstacles*numAgents), -27*ones(1, numAgents-1)];   % just slightly larger than map
 bounds.phase.path.upper         = [-1 * ones(1, auxdata.numObstacles*numAgents), zeros(1, numAgents-1)];    % min distance to obstacles
 
 guess.phase.time = [t0; tfmax];

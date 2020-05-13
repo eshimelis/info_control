@@ -18,7 +18,7 @@ for i = 1:auxdata.numAgents
 end
 
 format_plot(gca); axis equal; pbaspect([1 1 1]);
-title("X-Y Path Trajectory");
+title("Overhead Trajectory");
 xlabel("X Position (m)"); ylabel("Y Position (m)");
 
 % plot map information
@@ -26,7 +26,7 @@ xlim(map.bounds.x); ylim(map.bounds.y);
 plot(goal.pos(1), goal.pos(2), 'x', 'LineWidth', 3, 'MarkerSize', 15, 'Color', 'g');
 plot(start.pos(1), start.pos(2), 'o', 'LineWidth', 3, 'MarkerSize', 15, 'Color', 'r');
 
-legend("Path", "Goal", "Start");
+legend("Path", "Goal", "Start", "location", "southeast");
 
 
 %%
@@ -39,9 +39,9 @@ for i = 1:auxdata.numAgents
 end
 
 format_plot(gca);
-title("Control Input");
+title("Control Profile");
 xlabel("Time (s)"); ylabel("Control Effort");
-legend("X Control Effort", "Y Control Effort");
+% legend("X Control Effort", "Y Control Effort");
 
 %%
 subplot(2, 2, 3); hold on; set(gca, 'DefaultLineLineWidth', 2);
@@ -49,18 +49,20 @@ subplot(2, 2, 3); hold on; set(gca, 'DefaultLineLineWidth', 2);
 for i = 1:auxdata.numAgents
     plot(time, state(:, (4*i-3)), '-o');
     plot(time, state(:, (4*i-2)), '-o');
-
 end
 format_plot(gca);
-title("Position Displacement with Time");
+title("Position Displacement Profile");
 xlabel("Time (s)"); ylabel("Displacement (m)");
-legend("X Displacement", "Y Displacement");
+% legend("X Displacement", "Y Displacement");
 
 %%
 subplot(2, 2, 4); hold on; set(gca, 'DefaultLineLineWidth', 2);
-plot(time, state(:, 3), '-o');
-plot(time, state(:, 4), '-o');
+
+for i = 1:auxdata.numAgents
+    plot(time, state(:, 4*i-1), '-o');
+    plot(time, state(:, (4*i)), '-o');
+end
 format_plot(gca);
-title("Velocity with Time");
+title("Velocity Profile");
 xlabel("Time (s)"); ylabel("Velocity (m/s)");
-legend("X Velocity", "Y Velocity");
+% legend("X Velocity", "Y Velocity");

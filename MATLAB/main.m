@@ -33,26 +33,17 @@ run("/Users/eshimelis/Documents/MATLAB/adigator/startupadigator.m")
 map.bounds.x = [0, 100];
 map.bounds.y = [0, 100];
 
-% rectangles
-% obstacles.pos = [20, 0;
-%                  60, 40;
-%                  %60, 0
-%                  ];
-% 
-% obstacles.dim = [10, 60;
-%                  10, 60;
-%                  %10, 10
-%                  ]; 
-
 % circles
 obstacles.pos = [%30, 40;
-                 50, 80;
-                 50, 40;
-                 50, 20;
-                 50, 60
+                 30, 20;
+                 70, 30;
+                 30, 70;
+                 70, 80;
+                 50, 50;
                  ];
 
 obstacles.radius = [%16;
+                    5;
                     5;
                     5;
                     5;

@@ -1,288 +1,218 @@
 \documentclass[conference]{IEEEtran}
-\IEEEoverridecommandlockouts
+% \IEEEoverridecommandlockouts
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{cite}
-\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsmath,amssymb,amsfonts,mathtools,tikz}
 \usepackage{algorithmic}
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\usetikzlibrary{shapes,arrows,positioning}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
-\title{Conference Paper Title*\\
-{\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and
-should not be used}
-\thanks{Identify applicable funding agency here. If none, delete this.}
+\title{Information-Optimizing Control of Multi-Agent Systems\\
+{\footnotesize 16.32: Principles of Optimal Control and Estimation Term Project}}
+
+\author{\IEEEauthorblockN{Eyassu B. Shimelis}
+Cambridge, Massachusetts \\
+eyassu.shimelis@ll.mit.edu \\
 }
 
-\author{\IEEEauthorblockN{1\textsuperscript{st} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address or ORCID}
-\and
-\IEEEauthorblockN{2\textsuperscript{nd} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address or ORCID}
-\and
-\IEEEauthorblockN{3\textsuperscript{rd} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address or ORCID}
-\and
-\IEEEauthorblockN{4\textsuperscript{th} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address or ORCID}
-\and
-\IEEEauthorblockN{5\textsuperscript{th} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address or ORCID}
-\and
-\IEEEauthorblockN{6\textsuperscript{th} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address or ORCID}
+% Definition of blocks:
+\tikzset{%
+  block/.style    = {draw, thick, rectangle, minimum height = 3em,
+    minimum width = 3em},
+  sum/.style      = {draw, circle, node distance = 2cm}, % Adder
+  input/.style    = {coordinate}, % Input
+  output/.style   = {coordinate} % Output
 }
+% Defining string as labels of certain blocks.
+\newcommand{\suma}{\Large$+$}
+\newcommand{\inte}{$\displaystyle \int$}
+\newcommand{\derv}{\huge$\frac{d}{dt}$}
+
 
 \maketitle
+\thispagestyle{plain}
+\pagestyle{plain}
 
 \begin{abstract}
-This document is a model and instructions for \LaTeX.
-This and the IEEEtran.cls file define the components of your paper [title, text, heads, etc.]. *CRITICAL: Do Not Use Symbols, Special Characters, Footnotes, 
-or Math in Paper Title or Abstract.
+This report describes the implementation and results of using GPOPS-II to determine locally-optimal solutions for multi-agent path planning. The problem is formulated as a numerical optimization over space and time, with the goal of maximizing the position information of a primary agent. The solution is computed jointly; that is, an augmented state vector containing the states of all agents. The goal is to escort an autonomoous agent across an obstacle-filled map, while minimizing the time and expended control effort. With an adequate initial guess, GPOPS-II is able to find an optimal solution for all agents in a reasonable time (approx. 10 min) for four agents and five obstacles. This method, however, is not ideal for larger problems due to scaling issues, which are discussed in this report.
 \end{abstract}
 
-\begin{IEEEkeywords}
-component, formatting, style, styling, insert
-\end{IEEEkeywords}
-
 \section{Introduction}
-This document is a model and instructions for \LaTeX.
-Please observe the conference page limits. 
+In a classical sense, estimation is incorporated into control systems in order to improve their performance, when they are subject to noise. For example, in certain linear cases, Linear-quadratic-Gaussian (LQG) control is an example of how the two work together, seamlessly and optimally.
 
-\section{Ease of Use}
+This project is motivated by nonlinear, estimatiors that may be aided by information-maximizing control. Examples of this include remote sensing and collaborative robotics. Here, the primary performance metric may be the results of the estimator and not the control.
 
-\subsection{Maintaining the Integrity of the Specifications}
+\section{Problem Formulation}
+\subsection{Autonomous Convoy}
+This report considers a toy example: one of an autonomous convoy with two types of sensors. Each agent has a global positioning sensor and a relative range sensor. The GPS allows the agent to accurately estimate its global position in the map. The relative range sensor (e.g. sonar, received signal strength indicator, ultrawideband) measures the relative distance between two agents.
 
-The IEEEtran class file is used to format your paper and style the text. All margins, 
-column widths, line spaces, and text fonts are prescribed; please do not 
-alter them. You may note peculiarities. For example, the head margin
-measures proportionately more than is customary. This measurement 
-and others are deliberate, using specifications that anticipate your paper 
-as one part of the entire proceedings, and not as an independent document. 
-Please do not revise any of the current designations.
+Despite the simplicity of the problem, it motivates many interesting research questions in estimation and control. For example, previous work \cite{florian} has demonstrated a method of multi-agent estimation in a distributed manner. The authors demonstrate unique algorithms for performing approximate inference on the complex factor graphs, which arise from the relative measurements between agents. Other work \cite{spletzer} has looked into complex and clever control strategies, which result in improved localization in imagery-based, cooperative localization.
 
-\section{Prepare Your Paper Before Styling}
-Before you begin to format your paper, first write and save the content as a 
-separate text file. Complete all content and organizational editing before 
-formatting. Please note sections \ref{AA}--\ref{SCM} below for more information on 
-proofreading, spelling and grammar.
-
-Keep your text and graphic files separate until after the text has been 
-formatted and styled. Do not number text heads---{\LaTeX} will do that 
-for you.
-
-\subsection{Abbreviations and Acronyms}\label{AA}
-Define abbreviations and acronyms the first time they are used in the text, 
-even after they have been defined in the abstract. Abbreviations such as 
-IEEE, SI, MKS, CGS, ac, dc, and rms do not have to be defined. Do not use 
-abbreviations in the title or heads unless they are unavoidable.
-
-\subsection{Units}
-\begin{itemize}
-\item Use either SI (MKS) or CGS as primary units. (SI units are encouraged.) English units may be used as secondary units (in parentheses). An exception would be the use of English units as identifiers in trade, such as ``3.5-inch disk drive''.
-\item Avoid combining SI and CGS units, such as current in amperes and magnetic field in oersteds. This often leads to confusion because equations do not balance dimensionally. If you must use mixed units, clearly state the units for each quantity that you use in an equation.
-\item Do not mix complete spellings and abbreviations of units: ``Wb/m\textsuperscript{2}'' or ``webers per square meter'', not ``webers/m\textsuperscript{2}''. Spell out units when they appear in text: ``. . . a few henries'', not ``. . . a few H''.
-\item Use a zero before decimal points: ``0.25'', not ``.25''. Use ``cm\textsuperscript{3}'', not ``cc''.)
-\end{itemize}
-
-\subsection{Equations}
-Number equations consecutively. To make your 
-equations more compact, you may use the solidus (~/~), the exp function, or 
-appropriate exponents. Italicize Roman symbols for quantities and variables, 
-but not Greek symbols. Use a long dash rather than a hyphen for a minus 
-sign. Punctuate equations with commas or periods when they are part of a 
-sentence, as in:
-\begin{equation}
-a+b=\gamma\label{eq}
-\end{equation}
-
-Be sure that the 
-symbols in your equation have been defined before or immediately following 
-the equation. Use ``\eqref{eq}'', not ``Eq.~\eqref{eq}'' or ``equation \eqref{eq}'', except at 
-the beginning of a sentence: ``Equation \eqref{eq} is . . .''
-
-\subsection{\LaTeX-Specific Advice}
-
-Please use ``soft'' (e.g., \verb|\eqref{Eq}|) cross references instead
-of ``hard'' references (e.g., \verb|(1)|). That will make it possible
-to combine sections, add equations, or change the order of figures or
-citations without having to go through the file line by line.
-
-Please don't use the \verb|{eqnarray}| equation environment. Use
-\verb|{align}| or \verb|{IEEEeqnarray}| instead. The \verb|{eqnarray}|
-environment leaves unsightly spaces around relation symbols.
-
-Please note that the \verb|{subequations}| environment in {\LaTeX}
-will increment the main equation counter even when there are no
-equation numbers displayed. If you forget that, you might write an
-article in which the equation numbers skip from (17) to (20), causing
-the copy editors to wonder if you've discovered a new method of
-counting.
-
-{\BibTeX} does not work by magic. It doesn't get the bibliographic
-data from thin air but from .bib files. If you use {\BibTeX} to produce a
-bibliography you must send the .bib files. 
-
-{\LaTeX} can't read your mind. If you assign the same label to a
-subsubsection and a table, you might find that Table I has been cross
-referenced as Table IV-B3. 
-
-{\LaTeX} does not have precognitive abilities. If you put a
-\verb|\label| command before the command that updates the counter it's
-supposed to be using, the label will pick up the last counter to be
-cross referenced instead. In particular, a \verb|\label| command
-should not go before the caption of a figure or a table.
-
-Do not use \verb|\nonumber| inside the \verb|{array}| environment. It
-will not stop equation numbers inside \verb|{array}| (there won't be
-any anyway) and it might stop a wanted equation number in the
-surrounding equation.
-
-\subsection{Some Common Mistakes}\label{SCM}
-\begin{itemize}
-\item The word ``data'' is plural, not singular.
-\item The subscript for the permeability of vacuum $\mu_{0}$, and other common scientific constants, is zero with subscript formatting, not a lowercase letter ``o''.
-\item In American English, commas, semicolons, periods, question and exclamation marks are located within quotation marks only when a complete thought or name is cited, such as a title or full quotation. When quotation marks are used, instead of a bold or italic typeface, to highlight a word or phrase, punctuation should appear outside of the quotation marks. A parenthetical phrase or statement at the end of a sentence is punctuated outside of the closing parenthesis (like this). (A parenthetical sentence is punctuated within the parentheses.)
-\item A graph within a graph is an ``inset'', not an ``insert''. The word alternatively is preferred to the word ``alternately'' (unless you really mean something that alternates).
-\item Do not use the word ``essentially'' to mean ``approximately'' or ``effectively''.
-\item In your paper title, if the words ``that uses'' can accurately replace the word ``using'', capitalize the ``u''; if not, keep using lower-cased.
-\item Be aware of the different meanings of the homophones ``affect'' and ``effect'', ``complement'' and ``compliment'', ``discreet'' and ``discrete'', ``principal'' and ``principle''.
-\item Do not confuse ``imply'' and ``infer''.
-\item The prefix ``non'' is not a word; it should be joined to the word it modifies, usually without a hyphen.
-\item There is no period after the ``et'' in the Latin abbreviation ``et al.''.
-\item The abbreviation ``i.e.'' means ``that is'', and the abbreviation ``e.g.'' means ``for example''.
-\end{itemize}
-An excellent style manual for science writers is \cite{b7}.
-
-\subsection{Authors and Affiliations}
-\textbf{The class file is designed for, but not limited to, six authors.} A 
-minimum of one author is required for all conference articles. Author names 
-should be listed starting from left to right and then moving down to the 
-next line. This is the author sequence that will be used in future citations 
-and by indexing services. Names should not be listed in columns nor group by 
-affiliation. Please keep your affiliations as succinct as possible (for 
-example, do not differentiate among departments of the same organization).
-
-\subsection{Identify the Headings}
-Headings, or heads, are organizational devices that guide the reader through 
-your paper. There are two types: component heads and text heads.
-
-Component heads identify the different components of your paper and are not 
-topically subordinate to each other. Examples include Acknowledgments and 
-References and, for these, the correct style to use is ``Heading 5''. Use 
-``figure caption'' for your Figure captions, and ``table head'' for your 
-table title. Run-in heads, such as ``Abstract'', will require you to apply a 
-style (in this case, italic) in addition to the style provided by the drop 
-down menu to differentiate the head from the text.
-
-Text heads organize the topics on a relational, hierarchical basis. For 
-example, the paper title is the primary text head because all subsequent 
-material relates and elaborates on this one topic. If there are two or more 
-sub-topics, the next level head (uppercase Roman numerals) should be used 
-and, conversely, if there are not at least two sub-topics, then no subheads 
-should be introduced.
-
-\subsection{Figures and Tables}
-\paragraph{Positioning Figures and Tables} Place figures and tables at the top and 
-bottom of columns. Avoid placing them in the middle of columns. Large 
-figures and tables may span across both columns. Figure captions should be 
-below the figures; table heads should appear above the tables. Insert 
-figures and tables after they are cited in the text. Use the abbreviation 
-``Fig.~\ref{fig}'', even at the beginning of a sentence.
-
-\begin{table}[htbp]
-\caption{Table Type Styles}
+\begin{figure}[h!]
 \begin{center}
-\begin{tabular}{|c|c|c|c|}
-\hline
-\textbf{Table}&\multicolumn{3}{|c|}{\textbf{Table Column Head}} \\
-\cline{2-4} 
-\textbf{Head} & \textbf{\textit{Table column subhead}}& \textbf{\textit{Subhead}}& \textbf{\textit{Subhead}} \\
-\hline
-copy& More table copy$^{\mathrm{a}}$& &  \\
-\hline
-\multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
-\end{tabular}
-\label{tab1}
-\end{center}
-\end{table}
+\begin{tikzpicture}[auto, node distance=1cm,>=latex']
+\draw [cyan, line width=0.25mm, dashed, color=blue] plot [smooth, tension=1] coordinates { (2.5,1.5) (1,1) (0,-0.1) (-1, 0)};
 
-\begin{figure}[htbp]
-\centerline{\includegraphics{fig1.png}}
-\caption{Example of a figure caption.}
-\label{fig}
+\node[circle,draw, minimum size=0.7cm, fill=green!40!white] (A) at  (2.5,1.5)  {};
+
+\node[circle,draw, minimum size=0.7cm, fill=blue!40!white] (B) at  (3.5,-1) {};
+\node[circle,draw, minimum size=0.7cm, fill=blue!40!white] (C) at  (-1,2) {};
+\node[circle,draw, minimum size=0.7cm, fill=blue!40!white] (D) at  (3,2.5) {};
+\node[circle,draw, minimum size=0.7cm, fill=blue!40!white] (E) at  (-1.5,1) {};
+
+\draw (A) -- (B);
+\draw (A) -- (C);
+\draw (A) -- (D);
+\draw (A) -- (E);
+
+\end{tikzpicture}
+\end{center}
+\caption{Autonomous convoy of multi-agent system. The secondary agents (blue) are well localized, but the primary agent (green) must rely on relative range measurements to localize itself.}
+\label{convoy}
 \end{figure}
 
-Figure Labels: Use 8 point Times New Roman for Figure labels. Use words 
-rather than symbols or abbreviations when writing Figure axis labels to 
-avoid confusing the reader. As an example, write the quantity 
-``Magnetization'', or ``Magnetization, M'', not just ``M''. If including 
-units in the label, present them within parentheses. Do not label axes only 
-with units. In the example, write ``Magnetization (A/m)'' or ``Magnetization 
-\{A[m(1)]\}'', not just ``A/m''. Do not label axes with a ratio of 
-quantities and units. For example, write ``Temperature (K)'', not 
-``Temperature/K''.
 
-\section*{Acknowledgment}
+\subsection{Geometric Dilution of Precision}
+There are many systems out in the world which attempt to estimate position from relative range measuremts. An example of this is the Global Positioning System (GPS). A GPS receiver is able to estimate its position using the signal time-of-arrival (TOA) and positions of a subset of time-synchronized satellites. The quality of this position estimate is related to the geometric diversity of the transmitters. 
 
-The preferred spelling of the word ``acknowledgment'' in America is without 
-an ``e'' after the ``g''. Avoid the stilted expression ``one of us (R. B. 
-G.) thanks $\ldots$''. Instead, try ``R. B. G. thanks$\ldots$''. Put sponsor 
-acknowledgments in the unnumbered footnote on the first page.
+The sensitivty of the estimated state to the transmitter spatial configuration is surmised by the Geometric Dilution of Precision (GDOP). More precisely, the GDOP is a single-valued function $g: \mathbb{R}^{N \times M} \to \mathbb{R}$, where $N$ is the number of agents and $M$ is the dimensionality of each agent's position.
 
-\section*{References}
+The GDOP can be explained graphically. For example, Fig. \ref{bad_gdop} shows two transmitters are close to each other. In cases like this, small errors in the measured range may result in significant differences in inferred position. On the other hand, when the transmitters are spread out, the intersection of their noisy measurements reults in a smaller position-error patch. That is, the sensitivity of measurement errors is reduced, as shown in Fig. \ref{good_gdop}.
 
-Please number citations consecutively within brackets \cite{b1}. The 
-sentence punctuation follows the bracket \cite{b2}. Refer simply to the reference 
-number, as in \cite{b3}---do not use ``Ref. \cite{b3}'' or ``reference \cite{b3}'' except at 
-the beginning of a sentence: ``Reference \cite{b3} was the first $\ldots$''
+\begin{figure}[h!]
+\begin{center}\includegraphics[width=0.3\textwidth]{img/bad_gdop.png}
+\caption{Example of poor spatial diversity of transmitters. Results in a high dilution of precision.}
+\label{bad_gdop}
+\end{center}
+\end{figure}
 
-Number footnotes separately in superscripts. Place the actual footnote at 
-the bottom of the column in which it was cited. Do not put footnotes in the 
-abstract or reference list. Use letters for table footnotes.
+\begin{figure}[h!]
+\begin{center}\includegraphics[width=0.4\textwidth]{img/good_gdop.png}
+\caption{Example of good spatial diversity of transmitters. Resulting in a low dilution of precision.}
+\label{good_gdop}
+\end{center}
+\end{figure}
 
-Unless there are six authors or more give all authors' names; do not use 
-``et al.''. Papers that have not been published, even if they have been 
-submitted for publication, should be cited as ``unpublished'' \cite{b4}. Papers 
-that have been accepted for publication should be cited as ``in press'' \cite{b5}. 
-Capitalize only the first word in a paper title, except for proper nouns and 
-element symbols.
+For $N-1$ transmitters and one receiver--in two dimenstions--the GDOP is calculated by first constructing a matrix of unit vectors.
+\begin{align}
+A &= \begin{bmatrix} \frac{x_1 - x}{R_1} & \frac{y_1 - y}{R_1} & 1 \\ & \vdots & \\ \frac{x_N - x}{R_N} & \frac{y_N - y}{R_N} & 1 \\ \end{bmatrix} \\
+\intertext{The GDOP is then calculated as}
+\text{GDOP} &= \sqrt{tr \{ \left( A^T A\right) ^{-1} \}}
+\end{align}
 
-For papers published in translation journals, please give the English 
-citation first, followed by the original foreign-language citation \cite{b6}.
+Note: GDOP is a convenient proxy for information, as we have posed the problem. It assigns a numeric value to the quality of a geometric configuration\cite{gdop}.
+
+\subsection{Optimization Problem Formulation}
+The next step is to formulate the problem as an optimal control problem. We seek to find an optimal path through an obstacle-filled map, while minimizing the GDOP. Additionally, we want the solution to be minimum-time and minimum-fuel. Begin by defining the objective function, which is a weighted sum of these metrics.
+\[ \phi(x(t), ~u(t),~t) = \int_{t_0}^{tf} R_t t + R_{u}u^2 + R_{g} g(x(t))\]
+
+The goal is to minimize the objective funtion
+\begin{align}
+J &= \phi (x(t),~u(t),~t), \\
+\intertext{subject to dynamic constraints}
+\dot{x} &= Ax + u\\
+\intertext{and path constraints}
+0 &\geq c(x(t),~u(t),~t).
+\end{align}
+
+\subsection{State Dynamics and Constraints}
+For this problem, the agent's state consists of their position and velocity. They can control their position by independently applying a force in the x- or y-direction. To compute a joint solution, the agent's states were concatenated into a augmented single vector. The linear state dynamics are shown below:
+
+\[ \begin{bmatrix} \dot{x}_1 \\ \dot{y}_1 \\ \ddot{x}_1 \\ \ddot{y}_1 \\ \vdots \\ \dot{x}_n \\ \dot{y}_n \\ \ddot{x}_n \\ \ddot{y}_n \end{bmatrix}= \begin{bmatrix} 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 & \dots \\ 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 \\ &\vdots & & &  \ddots \\ & & & & & 0 & 0 & 1 & 0 \\ & & & & & 0 & 0 & 0 & 1 \\& & & & &  0 & 0 & 0 & 0 \\& & & & &  0 & 0 & 0 & 0 \end{bmatrix} \begin{bmatrix} x_1 \\ y_1 \\ \dot{x}_1 \\ \dot{y}_1 \\ \vdots \\ x_n \\ y_n \\ \dot{x}_n \\ \dot{y}_n \end{bmatrix} + \begin{bmatrix} 0 \\ 0 \\ u_{x_1} \\ u_{y_1} \\ \vdots \\ 0 \\ 0 \\ u_{x_n} \\ u_{y_n}\end{bmatrix}\]
+
+For some realism, the control for each agent is limited.
+\[ |u| \leq u_{\text{max}} \]
+
+Additionally, the secondary agents are constrained to remain within a maximum distance from the primary agent. 
+\[ d(t) \leq r_{\text{max}} \]
+
+This was added to enforce a maximum measurement/communication range between agents. And finally, agent paths may not intersect any obstacles.
+\[ x(t) \cap O \leq 0\]
+
+Fig. \ref{map} shows an example of the maps used in the optimization problem.
+\begin{figure}[h!]
+\begin{center}
+\begin{tikzpicture}[auto, node distance=1cm,>=latex']
+\draw (0, 0) -- (5, 0) -- (5, 5) -- (0,5) -- (0, 0);
+\draw[step=0.5,gray,thick] (0,0) grid (5,5);
+
+% obstacles
+\draw[black,fill=black!40!white] (1.5, 1) circle (0.25);
+\draw[black,fill=black!40!white] (3.5, 2) circle (0.25);
+\draw[black,fill=black!40!white] (1.5, 3) circle (0.25);
+\draw[black,fill=black!40!white] (3.5, 4) circle (0.25);
+\draw[black,fill=black!40!white] (2.5, 2.5) circle (0.25);
+
+\draw[black,fill=red!40!white] (0.25, 0.25) circle (0.1);
+\node[align=center] at (0.25, -0.5) {Start};
+
+\draw[black,fill=green!40!white] (4.5, 4.5) circle (0.1);
+\node[align=left] at (4.5, 5.25) {Goal};
+
+\end{tikzpicture}
+\caption{Example of a map. The red and green points denote the start and goal, respectively. The gray points indicate obstacles that the final paths may not intersect.}
+\label{map}
+\end{center}
+\end{figure}
+
+\subsection{Implementation}
+This optimal control problem was written using the GPOPS-II library. GPOPS-II is a general purpose optimal control library, written in MATLAB\cite{gpops}. It is able to solve complex optimization problems by approximating them using nonlinear programming techniques. The NLP translation is done under the hood, and relies on variable-order Gaussian quadrature methods.
+
+For this problem, the GPOPS-II code was parameterized to accept a variable number of agents, obstacles, obstacle configurations, start regions, and goal regions.
+
+\subsection{Technical Considerations and Assumptions}
+The problem was initially planned to work with rectangular obstacles. For simplicity, this was converted to using circles, since it is easier to write a smooth function for numerically describing intersection (i.e. distance to obstacle origin minus obstacle radius). 
+
+\section{Results}
+For well-conditioned problems, GPOPS-II converges to an optimal solution within a dozen minutes. Below are two results from two of these runs. The obstacles between the two runs are varied.
+
+The top left subplot of figures \ref{results_1} and \ref{results_2} show an overhead path of the agents, with other components of the state in the remaining subplots.
+
+\begin{figure*}[h!]
+\begin{center}\includegraphics[width=0.75\textwidth]{img/results_1.png}
+\caption{GPOPS-II optimal solution for four agents and four obstacles arranged vertically. The primary agent's position is highlighted in blue, in the plot on the top-left.}
+\label{results_1}
+\end{center}
+\end{figure*}
+
+\begin{figure*}[h!]
+\begin{center}\includegraphics[width=0.75\textwidth]{img/results_2.png}
+\caption{GPOPS-II optimal solution for four agents and five obstacles arranged in a cross pattern. The primary agent's position is highlighted in blue, in the plot on the top-left.}
+\label{results_2}
+\end{center}
+\end{figure*}
+
+% The results 
+
+\section{Discussions}
+The results show that it is possible to find (nearly-) optimal paths with a few numbers of agents and obstacles. Unfortunately, this technique scales poorly for larger problems.
+
+On visual inspection, the results appear consistent with the qualitative features we expect: control profiles exhibit bang-bang behavior, agent paths are smooth, and secondary agents attempt to maximize the angular diversity to the primary agent. One interesting note is that the secondary agents do not "overtake" the agent to surround it completely, this may be the balance between the minimum-fuel and minimum GDOP objectives.
+
+\section{Conclusions}
+This report formulates and implements a centralized for maximizing the GDOP of a single agent in a multi-agent system. The problem was formulated as an optimization problem, which was solved numerically, using GPOPS-II.
+
+GDOP is a single value which describes a complex phenomenon. As noted during the presentation of this project, a better metric would be to analyze the output of an estimator in real-time, which is the covariance matrix.
+
+\subsection{Future Work}
+A natural extension is to develop a controller that can be run in a decentralized manner. The centralized approach in this report would require complete communication to be implemented in an actual system.
+
+Additionally, this problem assumes that the map is well-known. In real scenarios, it may only be possible to compute optimal solutions locally.
+
+The agent dynamics in this report are relatively simple. This makes the solution and convergence more straightforward. It would be interesting to investigate complex dynamics, such as UAVs, ackermann-steered vehicles, or even legged robots.
+
 
 \begin{thebibliography}{00}
-\bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
-\bibitem{b2} J. Clerk Maxwell, A Treatise on Electricity and Magnetism, 3rd ed., vol. 2. Oxford: Clarendon, 1892, pp.68--73.
-\bibitem{b3} I. S. Jacobs and C. P. Bean, ``Fine particles, thin films and exchange anisotropy,'' in Magnetism, vol. III, G. T. Rado and H. Suhl, Eds. New York: Academic, 1963, pp. 271--350.
-\bibitem{b4} K. Elissa, ``Title of paper if known,'' unpublished.
-\bibitem{b5} R. Nicole, ``Title of paper with only first word capitalized,'' J. Name Stand. Abbrev., in press.
-\bibitem{b6} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ``Electron spectroscopy studies on magneto-optical media and plastic substrate interface,'' IEEE Transl. J. Magn. Japan, vol. 2, pp. 740--741, August 1987 [Digests 9th Annual Conf. Magnetics Japan, p. 301, 1982].
-\bibitem{b7} M. Young, The Technical Writer's Handbook. Mill Valley, CA: University Science, 1989.
+\bibitem{florian} F. Meyer, H. Wymeersch, M. Fr\"{o}hle and F. Hlawatsch, "Distributed Estimation With Information-Seeking Control in Agent Networks," in IEEE Journal on Selected Areas in Communications, vol. 33, no. 11, pp. 2439-2456, Nov. 2015
+\bibitem{spletzer} J. Spletzer, A. K. Das, R. Fierro, C. J. Taylor, V. Kumar and J. P. Ostrowski, "Cooperative localization and control for multi-robot manipulation," Proceedings 2001 IEEE/RSJ International Conference on Intelligent Robots and Systems. Expanding the Societal Role of Robotics in the Next illenium (Cat. No.01CH37180), Maui, HI, USA, 2001, pp. 631-636 vol .2
+\bibitem{gdop}J. Zhu, "Calculation of geometric dilution of precision," in IEEE Transactions on Aerospace and Electronic Systems, vol. 28, no. 3, pp. 893-895, July 1992, doi: 10.1109/7.256323.
+\bibitem{gpops}Patterson, M. A. and Rao, A. V., "GPOPS-II: A MATLAB Software for Solving Multiple-Phase Optimal Control Problems Using hp-Adaptive Gaussian Quadrature Collocation Methods and Sparse Nonlinear Programming", ACM Transactions on Mathematical Software, Vol. 41, No. 1., October 2014, pp. 1:1 - 1:37.
+
 \end{thebibliography}
-\vspace{12pt}
-\color{red}
-IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.
 
 \end{document}
